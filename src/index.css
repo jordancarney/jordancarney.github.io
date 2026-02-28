@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes cta-hyperspace-sweep {
+  0% {
+    transform: translateX(0) skewX(-24deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.95;
+  }
+  76% {
+    opacity: 0.72;
+  }
+  100% {
+    transform: translateX(230%) skewX(-24deg);
+    opacity: 0;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -65,5 +82,112 @@
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
     font-family: 'IBM Plex Sans', 'Avenir Next', 'Segoe UI', sans-serif;
+  }
+}
+
+.cta-hyperspace {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  transform: translateZ(0);
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.75, 0.2, 1),
+    box-shadow 300ms ease,
+    border-color 260ms ease,
+    background-color 260ms ease;
+  will-change: transform, box-shadow;
+}
+
+.cta-hyperspace::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(85% 55% at 50% 110%, rgba(56, 189, 248, 0.28), rgba(0, 0, 0, 0)),
+    radial-gradient(90% 62% at 50% -35%, rgba(45, 212, 191, 0.14), rgba(0, 0, 0, 0));
+  transition: opacity 260ms ease;
+}
+
+.cta-hyperspace--light::before {
+  background:
+    radial-gradient(95% 60% at 50% 120%, rgba(14, 116, 144, 0.14), rgba(0, 0, 0, 0)),
+    radial-gradient(95% 62% at 50% -35%, rgba(34, 211, 238, 0.12), rgba(0, 0, 0, 0));
+}
+
+.cta-hyperspace::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: -130%;
+  width: 130%;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(34, 211, 238, 0),
+    rgba(125, 211, 252, 0.55),
+    rgba(110, 231, 183, 0.78),
+    rgba(34, 211, 238, 0)
+  );
+  filter: blur(0.4px);
+}
+
+.cta-hyperspace--light::after {
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0),
+    rgba(15, 23, 42, 0.32),
+    rgba(8, 145, 178, 0.56),
+    rgba(125, 211, 252, 0.76),
+    rgba(15, 23, 42, 0.12),
+    rgba(15, 23, 42, 0)
+  );
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cta-hyperspace:hover {
+    transform: translateY(-1px) scale(1.012);
+    box-shadow:
+      0 0 0 1px rgba(94, 234, 212, 0.22),
+      0 10px 26px rgba(34, 211, 238, 0.14);
+  }
+
+  .cta-hyperspace:hover::before {
+    opacity: 1;
+  }
+
+  .cta-hyperspace:hover::after {
+    opacity: 1;
+    animation: cta-hyperspace-sweep 1850ms cubic-bezier(0.2, 0.76, 0.26, 1) 1;
+  }
+
+  .cta-hyperspace--light:hover {
+    box-shadow:
+      0 0 0 1px rgba(8, 145, 178, 0.28),
+      0 8px 22px rgba(14, 116, 144, 0.22);
+  }
+}
+
+.cta-hyperspace:active {
+  transform: translateY(0) scale(0.992);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-hyperspace {
+    transition: box-shadow 220ms ease, border-color 220ms ease, background-color 220ms ease;
+  }
+
+  .cta-hyperspace:hover,
+  .cta-hyperspace:active {
+    transform: none;
+  }
+
+  .cta-hyperspace::after {
+    animation: none !important;
   }
 }
