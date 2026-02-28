@@ -9,12 +9,12 @@ interface Star {
 }
 
 const STARFIELD = {
-  baseDensity: 8200,
-  minimumStars: 120,
-  minSpeed: 0.0045,
-  maxSpeed: 0.015,
-  minShimmer: 0.07,
-  maxShimmer: 0.24,
+  baseDensity: 6200,
+  minimumStars: 170,
+  minSpeed: 0.006,
+  maxSpeed: 0.02,
+  minShimmer: 0.1,
+  maxShimmer: 0.32,
   maxDelta: 2,
 } as const
 
@@ -92,8 +92,8 @@ export function HyperspaceBackground() {
         centerY,
         Math.max(width, height) * 0.72
       )
-      glow.addColorStop(0, 'rgba(56, 189, 248, 0.18)')
-      glow.addColorStop(0.55, 'rgba(37, 99, 235, 0.1)')
+      glow.addColorStop(0, 'rgba(56, 189, 248, 0.28)')
+      glow.addColorStop(0.55, 'rgba(37, 99, 235, 0.16)')
       glow.addColorStop(1, 'rgba(15, 23, 42, 0)')
 
       context.fillStyle = glow
@@ -115,7 +115,7 @@ export function HyperspaceBackground() {
 
         context.beginPath()
         context.fillStyle = `rgba(186, 230, 253, ${star.shimmer})`
-        context.arc(sx, sy, 1, 0, Math.PI * 2)
+        context.arc(sx, sy, 1.15, 0, Math.PI * 2)
         context.fill()
       }
     }
@@ -146,9 +146,9 @@ export function HyperspaceBackground() {
           continue
         }
 
-        const intensity = Math.max(0.06, 0.28 - star.z * 0.12 + star.shimmer)
+        const intensity = Math.max(0.08, 0.36 - star.z * 0.1 + star.shimmer)
         context.strokeStyle = `rgba(186, 230, 253, ${intensity})`
-        context.lineWidth = Math.max(0.55, (1 - star.z) * 2)
+        context.lineWidth = Math.max(0.7, (1 - star.z) * 2.8)
         context.beginPath()
         context.moveTo(px, py)
         context.lineTo(sx, sy)
@@ -197,8 +197,8 @@ export function HyperspaceBackground() {
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <canvas ref={canvasRef} className="h-full w-full opacity-70" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(15,23,42,0)_0%,rgba(9,9,11,0.35)_68%,rgba(9,9,11,0.66)_100%)]" />
+      <canvas ref={canvasRef} className="h-full w-full opacity-85" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(15,23,42,0)_0%,rgba(9,9,11,0.27)_68%,rgba(9,9,11,0.56)_100%)]" />
     </div>
   )
 }
