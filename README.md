@@ -2,6 +2,10 @@
 
 Single-page personal site built with Vite, React, TypeScript, Tailwind CSS, and shadcn/ui.
 
+## Live Site
+
+[jordan-carney.com](https://jordan-carney.com)
+
 This repository is configured as a GitHub Pages user site (`jordancarney.github.io`), so Vite uses the default base path (`/`) and deploys from the domain root.
 
 ## Development
