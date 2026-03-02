@@ -120,6 +120,15 @@ export function HyperspaceBackground() {
       }
     }
 
+    const redrawReducedMotionFrame = () => {
+      if (!reducedMotion) {
+        return
+      }
+
+      resize()
+      drawStaticFrame()
+    }
+
     const animate = (now: number) => {
       const delta = Math.min((now - lastFrameTime) / 16.67, STARFIELD.maxDelta)
       lastFrameTime = now
@@ -163,15 +172,34 @@ export function HyperspaceBackground() {
       reducedMotion = event.matches
       window.cancelAnimationFrame(rafId)
       if (reducedMotion) {
-        drawStaticFrame()
+        redrawReducedMotionFrame()
       } else {
         lastFrameTime = performance.now()
         rafId = window.requestAnimationFrame(animate)
       }
     }
 
+    const onResize = () => {
+      resize()
+      if (reducedMotion) {
+        drawStaticFrame()
+      }
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        redrawReducedMotionFrame()
+      }
+    }
+
+    const onPageShow = () => {
+      redrawReducedMotionFrame()
+    }
+
     resize()
-    window.addEventListener('resize', resize)
+    window.addEventListener('resize', onResize)
+    window.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('pageshow', onPageShow)
     if (typeof mediaQuery.addEventListener === 'function') {
       mediaQuery.addEventListener('change', onMotionChange)
     } else {
@@ -179,14 +207,18 @@ export function HyperspaceBackground() {
     }
 
     if (reducedMotion) {
-      drawStaticFrame()
+      redrawReducedMotionFrame()
+      // Force one more paint after layout settles to avoid first-load blank frames.
+      window.requestAnimationFrame(redrawReducedMotionFrame)
     } else {
       rafId = window.requestAnimationFrame(animate)
     }
 
     return () => {
       window.cancelAnimationFrame(rafId)
-      window.removeEventListener('resize', resize)
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('pageshow', onPageShow)
       if (typeof mediaQuery.removeEventListener === 'function') {
         mediaQuery.removeEventListener('change', onMotionChange)
       } else {

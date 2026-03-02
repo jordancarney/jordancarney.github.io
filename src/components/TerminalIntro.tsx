@@ -6,14 +6,16 @@ interface TerminalIntroProps {
 }
 
 export function TerminalIntro({ text, typingSpeedMs = 80 }: TerminalIntroProps) {
-  const [displayedText, setDisplayedText] = useState('')
-  const [isComplete, setIsComplete] = useState(false)
+  const prefersReducedMotionOnLoad =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const [displayedText, setDisplayedText] = useState(() =>
+    prefersReducedMotionOnLoad ? text : ''
+  )
+  const [isComplete, setIsComplete] = useState(() => prefersReducedMotionOnLoad || !text)
 
   useEffect(() => {
-    setDisplayedText('')
-    setIsComplete(false)
-
     if (!text) {
+      setDisplayedText('')
       setIsComplete(true)
       return
     }
@@ -24,6 +26,9 @@ export function TerminalIntro({ text, typingSpeedMs = 80 }: TerminalIntroProps) 
       setIsComplete(true)
       return
     }
+
+    setDisplayedText('')
+    setIsComplete(false)
 
     let index = 0
     const timerId = window.setInterval(() => {
