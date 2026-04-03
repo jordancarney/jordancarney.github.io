@@ -9,7 +9,7 @@ export const siteConfig = {
     personal:
       "Outside of building, I’m big into fitness, investing, and spending time with my family.",
   },
-  email: 'jordan@jordan-carney.com',
+  email: 'me@jordan-carney.com',
   emailSubject: 'Inquiry from jordan-carney.com',
   linkedinUrl: 'https://www.linkedin.com/in/jordan-carney/',
 } as const
