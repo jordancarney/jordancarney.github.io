@@ -171,8 +171,9 @@
   }
 
   // ----- Ship skins ------------------------------------------------------
-  // 10 cosmetic ships (the collision hitbox is always the same circle).
-  // cost 0 = free from the start; others are bought with coins.
+  // 20 cosmetic ships (the collision hitbox is always the same circle).
+  // cost 0 = free from the start; others are bought with coins. The 10 fun
+  // "kid" ships (kitty…unicorn) are the reward for clearing every level.
   const SKINS = [
     { id: "dart",    name: "Dart",    cost: 0,   trail: "#46e6ff", glow: "rgba(70,230,255,0.7)",  flame: "#bff6ff" },
     { id: "saucer",  name: "Saucer",  cost: 0,   trail: "#9cff57", glow: "rgba(140,255,90,0.6)",  flame: "#d8ffa8" },
@@ -184,13 +185,27 @@
     { id: "bee",     name: "Bumble",  cost: 45,  trail: "#ffe14a", glow: "rgba(255,225,74,0.6)",  flame: "#fff3a8" },
     { id: "crystal", name: "Crystal", cost: 90,  trail: "#7af5ff", glow: "rgba(122,245,255,0.7)", flame: "#d6ffff" },
     { id: "phoenix", name: "Phoenix", cost: 125, trail: "#ff9f1c", glow: "rgba(255,140,30,0.85)", flame: "#ffd24a" },
+    // --- the "all levels cleared" collection: fun ships for kids ---
+    { id: "kitty",   name: "Cosmo Cat", cost: 95,  trail: "#ffb3d9", glow: "rgba(255,150,200,0.7)", flame: "#ffd6ec" },
+    { id: "heart",   name: "Sweetheart",cost: 105, trail: "#ff5d8f", glow: "rgba(255,93,143,0.8)",  flame: "#ffb3c8" },
+    { id: "robot",   name: "Bolt Bot",  cost: 110, trail: "#9be7ff", glow: "rgba(120,210,255,0.8)", flame: "#d6f5ff" },
+    { id: "dino",    name: "Rex",       cost: 120, trail: "#7be06b", glow: "rgba(110,220,90,0.7)",  flame: "#d2ffc2" },
+    { id: "shark",   name: "Chomp",     cost: 130, trail: "#7fd8ff", glow: "rgba(120,200,255,0.7)", flame: "#dff3ff" },
+    { id: "dragon",  name: "Drake",     cost: 150, trail: "#62e0a0", glow: "rgba(80,220,150,0.8)",  flame: "#ff9a3c" },
+    { id: "rainbow", name: "Prism",     cost: 165, trail: "#ff66cc", glow: "rgba(255,120,220,0.8)", flame: "#ffffff" },
+    { id: "alien",   name: "Zorp",      cost: 175, trail: "#b6ff5a", glow: "rgba(160,255,80,0.85)", flame: "#e6ffb0" },
+    { id: "gold",    name: "Midas",     cost: 200, trail: "#ffd54a", glow: "rgba(255,200,60,0.9)",  flame: "#fff0a8" },
+    { id: "unicorn", name: "Sparkle",   cost: 220, trail: "#ff9be0", glow: "rgba(255,160,230,0.85)",flame: "#ffe6ff" },
   ];
 
   // Coins earned the FIRST time each level is cleared (index = level).
-  // INVARIANT: sum(LEVEL_REWARD) === sum(ship costs) so clearing every level
-  // earns exactly enough to buy every ship. (Add a level -> add a reward; as
-  // the catalog grows there'll be surplus, which is fine — rebalance costs then.)
-  const LEVEL_REWARD = [15, 20, 25, 50, 40, 45, 50, 55, 60, 85];
+  // INVARIANT: sum(LEVEL_REWARD) === sum(ship costs) === 1915, so clearing every
+  // level earns exactly enough to buy every ship. (Add a level -> add a reward;
+  // add a ship -> keep total coins >= total cost. Harder later levels pay more.)
+  const LEVEL_REWARD = [
+    15, 20, 25, 50, 40, 45, 50, 55, 60, 85,        // 1–10  (sum 445)
+    90, 105, 115, 125, 140, 150, 165, 180, 195, 205, // 11–20 (sum 1470)
+  ];
   (function checkEconomy() {
     let tr = 0;
     for (let i = 0; i < LEVELS.length; i++) tr += (LEVEL_REWARD[i] != null ? LEVEL_REWARD[i] : DEFAULT_REWARD);
@@ -206,6 +221,15 @@
     c.arcTo(x, y + h, x, y, r);
     c.arcTo(x, y, x + w, y, r);
     c.closePath();
+  }
+
+  // A filled 4-point sparkle (used by Midas & Sparkle). Caller sets fillStyle.
+  function sparkle(c, x, y, r) {
+    const t = r * 0.28;
+    c.beginPath();
+    c.moveTo(x, y - r); c.lineTo(x + t, y - t); c.lineTo(x + r, y); c.lineTo(x + t, y + t);
+    c.lineTo(x, y + r); c.lineTo(x - t, y + t); c.lineTo(x - r, y); c.lineTo(x - t, y - t);
+    c.closePath(); c.fill();
   }
 
   // Draw a skin at the origin, nose pointing +x. Works on any 2D context
@@ -346,6 +370,248 @@
         c.beginPath(); c.moveTo(2, 8); c.quadraticCurveTo(13, 14, 17, 3); c.quadraticCurveTo(7, 6, 2, 8); c.fill();
         break;
       }
+      case "kitty": { // space cat — round pink head, ears, whiskers
+        c.shadowBlur = 0;
+        c.strokeStyle = "#ff9ed1"; c.lineWidth = 3; c.lineCap = "round";
+        c.beginPath(); c.moveTo(-10, 2); c.quadraticCurveTo(-19, 0, -16, -9); c.stroke(); // tail
+        c.shadowColor = skin.glow; c.shadowBlur = 10;
+        c.fillStyle = "#ffb3d9"; c.strokeStyle = "#ff7ab8"; c.lineWidth = 1.2;
+        c.beginPath(); c.moveTo(-7, -8); c.lineTo(-9, -16); c.lineTo(-1, -10); c.closePath(); c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(7, -8); c.lineTo(10, -16); c.lineTo(2, -10); c.closePath(); c.fill(); c.stroke();
+        const g = c.createLinearGradient(0, -11, 0, 12);
+        g.addColorStop(0, "#ffe0f0"); g.addColorStop(1, "#ff9ed1");
+        c.fillStyle = g; c.strokeStyle = "#ff7ab8"; c.lineWidth = 1.4;
+        c.beginPath(); c.arc(0, 0, 12, 0, 7); c.fill(); c.stroke();
+        c.shadowBlur = 0; c.fillStyle = "#ff6fb0";
+        c.beginPath(); c.moveTo(-6, -9); c.lineTo(-7.5, -13.5); c.lineTo(-3, -10.5); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(6, -9); c.lineTo(7.5, -13.5); c.lineTo(3, -10.5); c.closePath(); c.fill();
+        c.fillStyle = "#3a2030";
+        c.beginPath(); c.arc(3, -1, 1.8, 0, 7); c.fill();
+        c.beginPath(); c.arc(9, -1, 1.8, 0, 7); c.fill();
+        c.fillStyle = "#ff5d8f"; c.beginPath(); c.moveTo(11.5, 1.5); c.lineTo(13.5, 0.5); c.lineTo(13.5, 2.5); c.closePath(); c.fill();
+        c.strokeStyle = "rgba(255,255,255,0.85)"; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(11, 2); c.lineTo(17, 1); c.moveTo(11, 3.5); c.lineTo(17, 4.5); c.stroke();
+        break;
+      }
+      case "heart": { // winged sweetheart, point facing +x
+        c.shadowBlur = 0; c.fillStyle = "rgba(255,255,255,0.6)";
+        c.beginPath(); c.ellipse(-4, -6, 6, 3, -0.6, 0, 7); c.fill();
+        c.beginPath(); c.ellipse(-4, 6, 6, 3, 0.6, 0, 7); c.fill();
+        c.shadowColor = skin.glow; c.shadowBlur = 12;
+        const g = c.createLinearGradient(0, -10, 6, 11);
+        g.addColorStop(0, "#ff9ebd"); g.addColorStop(1, "#ff3d77");
+        c.fillStyle = g; c.strokeStyle = "#ffd0de"; c.lineWidth = 1.4;
+        c.beginPath();
+        c.moveTo(-2, 0);
+        c.quadraticCurveTo(-10, -10, -3, -10);
+        c.quadraticCurveTo(2, -10, 13, 0);
+        c.quadraticCurveTo(2, 10, -3, 10);
+        c.quadraticCurveTo(-10, 10, -2, 0);
+        c.closePath(); c.fill(); c.stroke();
+        c.shadowBlur = 0; c.fillStyle = "rgba(255,255,255,0.7)";
+        c.beginPath(); c.ellipse(0, -3, 2, 3, -0.5, 0, 7); c.fill();
+        break;
+      }
+      case "robot": { // cute bot — body, visor, antenna, bolt
+        c.shadowBlur = 0;
+        c.strokeStyle = "#cfe0ff"; c.lineWidth = 1.6; c.lineCap = "round";
+        c.beginPath(); c.moveTo(0, -10); c.lineTo(-3, -16); c.stroke();
+        c.fillStyle = "#ffe14a"; c.beginPath(); c.arc(-3, -17, 2.2, 0, 7); c.fill();
+        c.fillStyle = "#5a6b8c";
+        c.beginPath(); c.moveTo(-9, -7); c.lineTo(-16, 0); c.lineTo(-9, 7); c.closePath(); c.fill();
+        c.shadowColor = skin.glow; c.shadowBlur = 10;
+        const g = c.createLinearGradient(0, -11, 0, 11);
+        g.addColorStop(0, "#f1f7ff"); g.addColorStop(0.5, "#a9c6e0"); g.addColorStop(1, "#67809e");
+        c.fillStyle = g; c.strokeStyle = "#e6f1ff"; c.lineWidth = 1.4;
+        roundRectPath(c, -10, -11, 21, 22, 7); c.fill(); c.stroke();
+        c.shadowBlur = 0;
+        const vg = c.createLinearGradient(0, -6, 0, 6);
+        vg.addColorStop(0, "#0a2a3a"); vg.addColorStop(1, "#0a1626");
+        c.fillStyle = vg; roundRectPath(c, -1, -6, 11, 12, 4); c.fill();
+        c.fillStyle = "#46e6ff"; c.shadowColor = "rgba(70,230,255,0.9)"; c.shadowBlur = 8;
+        c.beginPath(); c.arc(3, 0, 2, 0, 7); c.fill();
+        c.beginPath(); c.arc(8, 0, 2, 0, 7); c.fill();
+        c.shadowBlur = 0; c.fillStyle = "#ffe14a";
+        c.beginPath(); c.moveTo(-6, -5); c.lineTo(-2, -1); c.lineTo(-5, -1); c.lineTo(-2, 5); c.lineTo(-7, 0); c.lineTo(-4, 0); c.closePath(); c.fill();
+        break;
+      }
+      case "dino": { // green T-rex head, back plates, teeth
+        c.shadowColor = skin.glow; c.shadowBlur = 10;
+        c.fillStyle = "#5fc94e";
+        c.beginPath(); c.moveTo(-6, 4); c.lineTo(-18, 1); c.lineTo(-6, -3); c.closePath(); c.fill();
+        const g = c.createLinearGradient(0, -11, 0, 11);
+        g.addColorStop(0, "#a6f08a"); g.addColorStop(1, "#4fb53e");
+        c.fillStyle = g; c.strokeStyle = "#d8ffc2"; c.lineWidth = 1.3;
+        c.beginPath();
+        c.moveTo(-8, -8);
+        c.quadraticCurveTo(8, -11, 15, -3);
+        c.lineTo(15, 4);
+        c.quadraticCurveTo(8, 8, -8, 9);
+        c.closePath(); c.fill(); c.stroke();
+        c.shadowBlur = 0; c.fillStyle = "#2f8f2a";
+        for (const sx of [-7, -2, 3]) { c.beginPath(); c.moveTo(sx, -8); c.lineTo(sx + 2, -13); c.lineTo(sx + 4, -8); c.closePath(); c.fill(); }
+        c.fillStyle = "#fff";
+        c.beginPath(); c.moveTo(8, 5); c.lineTo(10, 8); c.lineTo(12, 5); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(12, 5); c.lineTo(13.5, 7.5); c.lineTo(15, 5); c.closePath(); c.fill();
+        c.beginPath(); c.arc(7, -3, 2.6, 0, 7); c.fill();
+        c.fillStyle = "#16320f"; c.beginPath(); c.arc(8, -3, 1.3, 0, 7); c.fill();
+        break;
+      }
+      case "shark": { // grey shark — dorsal + tail fin, toothy grin
+        c.shadowColor = skin.glow; c.shadowBlur = 10;
+        c.fillStyle = "#6f93b0";
+        c.beginPath(); c.moveTo(-9, 0); c.lineTo(-18, -7); c.lineTo(-15, 0); c.lineTo(-18, 7); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(-3, -8); c.lineTo(0, -16); c.lineTo(5, -8); c.closePath(); c.fill();
+        const g = c.createLinearGradient(0, -9, 0, 9);
+        g.addColorStop(0, "#bcd4e6"); g.addColorStop(0.55, "#7f9fb8"); g.addColorStop(1, "#5a7790");
+        c.fillStyle = g; c.strokeStyle = "#dcebf5"; c.lineWidth = 1.2;
+        c.beginPath();
+        c.moveTo(-10, 0);
+        c.quadraticCurveTo(-4, -10, 8, -7);
+        c.quadraticCurveTo(16, -4, 16, 0);
+        c.quadraticCurveTo(16, 4, 8, 7);
+        c.quadraticCurveTo(-4, 10, -10, 0);
+        c.closePath(); c.fill(); c.stroke();
+        c.shadowBlur = 0;
+        c.strokeStyle = "#2c3e50"; c.lineWidth = 1.4;
+        c.beginPath(); c.moveTo(7, 5); c.quadraticCurveTo(13, 5, 16, 2); c.stroke();
+        c.fillStyle = "#fff";
+        for (const tx of [9, 12]) { c.beginPath(); c.moveTo(tx, 4.5); c.lineTo(tx + 1, 7); c.lineTo(tx + 2, 4.5); c.closePath(); c.fill(); }
+        c.fillStyle = "#0a1622"; c.beginPath(); c.arc(9, -2, 1.6, 0, 7); c.fill();
+        c.strokeStyle = "rgba(40,60,80,0.6)"; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(2, -3); c.lineTo(1, 3); c.moveTo(5, -3); c.lineTo(4, 3); c.stroke();
+        break;
+      }
+      case "dragon": { // green dragon head, horn, bat wing
+        c.shadowColor = skin.glow; c.shadowBlur = 10;
+        c.fillStyle = "rgba(60,180,120,0.85)";
+        c.beginPath(); c.moveTo(-4, -3); c.lineTo(-14, -13); c.lineTo(-10, -2); c.lineTo(-16, -4); c.lineTo(-6, 4); c.closePath(); c.fill();
+        c.strokeStyle = "#3fae74"; c.lineWidth = 3; c.lineCap = "round";
+        c.beginPath(); c.moveTo(-6, 4); c.quadraticCurveTo(-17, 6, -14, 12); c.stroke();
+        const g = c.createLinearGradient(0, -10, 0, 10);
+        g.addColorStop(0, "#8df0b8"); g.addColorStop(1, "#3aa56a");
+        c.fillStyle = g; c.strokeStyle = "#d6ffe6"; c.lineWidth = 1.3;
+        c.beginPath();
+        c.moveTo(-8, -6);
+        c.quadraticCurveTo(6, -10, 14, -5);
+        c.lineTo(15, 1);
+        c.quadraticCurveTo(11, 4, 6, 3);
+        c.quadraticCurveTo(10, 8, 4, 8);
+        c.quadraticCurveTo(-6, 8, -8, -6);
+        c.closePath(); c.fill(); c.stroke();
+        c.shadowBlur = 0; c.fillStyle = "#ffe6a8";
+        c.beginPath(); c.moveTo(-3, -7); c.lineTo(1, -15); c.lineTo(3, -6); c.closePath(); c.fill();
+        c.fillStyle = "#fff"; c.beginPath(); c.arc(6, -3, 2.4, 0, 7); c.fill();
+        c.fillStyle = "#0d2a18"; c.beginPath(); c.arc(7, -3, 1.2, 0, 7); c.fill();
+        c.fillStyle = "#1f6b42"; c.beginPath(); c.arc(13, 0, 1, 0, 7); c.fill();
+        break;
+      }
+      case "rainbow": { // dart filled with rainbow bands
+        c.shadowColor = skin.glow; c.shadowBlur = 12;
+        const bands = ["#ff4d4d", "#ff9f1c", "#ffe14a", "#5dd35d", "#46b6ff", "#9b6bff"];
+        c.save();
+        c.beginPath(); c.moveTo(15, 0); c.lineTo(-12, -10); c.lineTo(-6, 0); c.lineTo(-12, 10); c.closePath();
+        c.strokeStyle = "#ffffff"; c.lineWidth = 1.5; c.stroke();
+        c.clip();
+        const n = bands.length;
+        for (let i = 0; i < n; i++) {
+          c.fillStyle = bands[i];
+          c.fillRect(-12, -10 + (20 * i / n), 28, 20 / n + 0.6);
+        }
+        c.restore();
+        c.shadowBlur = 0; c.fillStyle = "rgba(255,255,255,0.9)";
+        c.beginPath(); c.arc(2, 0, 2.4, 0, 7); c.fill();
+        break;
+      }
+      case "alien": { // UFO with a little green alien + tractor beam
+        c.shadowBlur = 0;
+        const beam = c.createLinearGradient(0, 4, 0, 16);
+        beam.addColorStop(0, "rgba(182,255,90,0.5)"); beam.addColorStop(1, "rgba(182,255,90,0)");
+        c.fillStyle = beam;
+        c.beginPath(); c.moveTo(-5, 4); c.lineTo(5, 4); c.lineTo(11, 15); c.lineTo(-11, 15); c.closePath(); c.fill();
+        c.shadowColor = skin.glow; c.shadowBlur = 10;
+        const g = c.createLinearGradient(0, -2, 0, 7);
+        g.addColorStop(0, "#cfd8e8"); g.addColorStop(1, "#7b8aa6");
+        c.fillStyle = g; c.strokeStyle = "#eef3ff"; c.lineWidth = 1.2;
+        c.beginPath(); c.ellipse(0, 4, 15, 5, 0, 0, 7); c.fill(); c.stroke();
+        c.shadowBlur = 0;
+        const dg = c.createLinearGradient(0, -10, 0, 4);
+        dg.addColorStop(0, "rgba(180,240,255,0.85)"); dg.addColorStop(1, "rgba(120,200,230,0.5)");
+        c.fillStyle = dg; c.beginPath(); c.arc(0, 2, 9, Math.PI, 0); c.fill();
+        c.strokeStyle = "rgba(220,245,255,0.9)"; c.stroke();
+        c.fillStyle = "#9be05a"; c.beginPath(); c.ellipse(2, -1, 4.5, 5.5, 0, 0, 7); c.fill();
+        c.fillStyle = "#10220a";
+        c.beginPath(); c.ellipse(3.6, -1, 1.4, 2.2, -0.3, 0, 7); c.fill();
+        c.beginPath(); c.ellipse(0.6, -1, 1.2, 2, 0.3, 0, 7); c.fill();
+        c.fillStyle = "#ffe14a"; c.shadowColor = "#ffe14a"; c.shadowBlur = 6;
+        for (const lx of [-11, -6, 6, 11]) { c.beginPath(); c.arc(lx, 4.5, 1.3, 0, 7); c.fill(); }
+        c.shadowBlur = 0;
+        break;
+      }
+      case "gold": { // sleek golden jet with sparkles
+        c.shadowColor = skin.glow; c.shadowBlur = 16;
+        const g = c.createLinearGradient(-12, -10, 15, 10);
+        g.addColorStop(0, "#fff6c0"); g.addColorStop(0.5, "#ffcf33"); g.addColorStop(1, "#c98a00");
+        c.fillStyle = g; c.strokeStyle = "#fff2b0"; c.lineWidth = 1.6;
+        c.beginPath();
+        c.moveTo(16, 0);
+        c.lineTo(-6, -6); c.lineTo(-13, -11); c.lineTo(-8, -2);
+        c.lineTo(-13, 0);
+        c.lineTo(-8, 2); c.lineTo(-13, 11); c.lineTo(-6, 6);
+        c.closePath(); c.fill(); c.stroke();
+        c.shadowBlur = 0; c.fillStyle = "#5a3a00";
+        c.beginPath(); c.ellipse(3, 0, 3, 2, 0, 0, 7); c.fill();
+        c.fillStyle = "#fff";
+        const tw = Math.abs(Math.sin(t * 5));
+        c.globalAlpha = 0.5 + 0.5 * tw; sparkle(c, 9, -3, 2.6);
+        c.globalAlpha = 0.4 + 0.5 * (1 - tw); sparkle(c, -2, 4, 2);
+        c.globalAlpha = 1;
+        break;
+      }
+      case "unicorn": { // white unicorn, golden horn, rainbow mane & tail
+        c.shadowBlur = 0;
+        const mane = ["#ff5d8f", "#ff9f1c", "#ffe14a", "#5dd35d", "#46b6ff", "#9b6bff"];
+        c.lineWidth = 2.4; c.lineCap = "round";
+        for (let i = 0; i < mane.length; i++) {
+          c.strokeStyle = mane[i];
+          c.beginPath();
+          c.moveTo(-2, -7 + i * 1.0);
+          c.quadraticCurveTo(-12 - i, -2 + i * 1.2, -15 - i * 0.5, 8 + i * 0.7);
+          c.stroke();
+        }
+        for (let i = 0; i < mane.length; i++) {
+          c.strokeStyle = mane[i];
+          c.beginPath();
+          c.moveTo(-7, 3 + i * 0.6);
+          c.quadraticCurveTo(-17, 6 + i, -15 - i * 0.4, 13 + i * 0.5);
+          c.stroke();
+        }
+        c.shadowColor = skin.glow; c.shadowBlur = 10;
+        const g = c.createLinearGradient(0, -8, 0, 12);
+        g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#ffe0f3");
+        c.fillStyle = g; c.strokeStyle = "#ffd0ec"; c.lineWidth = 1.3;
+        c.beginPath();
+        c.moveTo(-6, -6);
+        c.quadraticCurveTo(6, -9, 13, -2);
+        c.lineTo(14, 4);
+        c.quadraticCurveTo(9, 8, 4, 7);
+        c.quadraticCurveTo(-4, 8, -6, -6);
+        c.closePath(); c.fill(); c.stroke();
+        c.shadowBlur = 0; c.fillStyle = "#fff0fb";
+        c.beginPath(); c.moveTo(-3, -6); c.lineTo(-5, -12); c.lineTo(1, -7); c.closePath(); c.fill();
+        c.fillStyle = "#ffd54a"; c.strokeStyle = "#c98a00"; c.lineWidth = 0.8;
+        c.beginPath(); c.moveTo(3, -7); c.lineTo(6, -18); c.lineTo(8, -6); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(4, -9); c.lineTo(7, -9); c.moveTo(4.6, -12); c.lineTo(7, -12); c.moveTo(5.2, -15); c.lineTo(6.8, -15); c.stroke();
+        c.fillStyle = "#3a2030"; c.beginPath(); c.arc(7, -1, 1.7, 0, 7); c.fill();
+        c.fillStyle = "#fff"; c.beginPath(); c.arc(7.6, -1.6, 0.6, 0, 7); c.fill();
+        c.fillStyle = "#e89ec8"; c.beginPath(); c.arc(12.5, 3, 0.9, 0, 7); c.fill();
+        c.fillStyle = "#fff";
+        const tw = Math.abs(Math.sin(t * 4));
+        c.globalAlpha = 0.5 + 0.5 * tw; sparkle(c, 11, -9, 3);
+        c.globalAlpha = 0.4 + 0.5 * (1 - tw); sparkle(c, -1, -10, 2);
+        c.globalAlpha = 1;
+        break;
+      }
       default: { // "dart"
         const g = c.createLinearGradient(-12, -10, 15, 10);
         g.addColorStop(0, "#9af6ff"); g.addColorStop(1, "#1e9fc0");
@@ -404,11 +670,20 @@
     const p = ((t / s.period) + (s.phase || 0)) % 1;
     return s.len * (0.5 - 0.5 * Math.cos(2 * Math.PI * p));
   }
+  // Center of a moving GATE's hole at level-time t. A gate is a top + bottom
+  // spike that slide up and down together (constant hole of half-height s.gap),
+  // so the hole's center traces s.center ± s.amp every s.period seconds.
+  function gateCenter(s, t) {
+    return s.center + s.amp * Math.sin(2 * Math.PI * ((t / s.period) + (s.phase || 0)));
+  }
   // Triangle [ax,ay,bx,by,cx,cy] for a spike at level-time t.
-  //   bottom/top  = static.   launching = rises from floor.   falling = drops from ceiling.
+  //   bottom/top         = static.   launching/falling = piston in/out of a wall.
+  //   gateTop/gateBottom = the two spikes of a moving hole (slide together).
   function spikeTri(s, t) {
     if (s.dir === "bottom") return [s.x, FLOOR, s.x + s.w, FLOOR, s.x + s.w / 2, FLOOR - s.h];
     if (s.dir === "top") return [s.x, CEIL, s.x + s.w, CEIL, s.x + s.w / 2, CEIL + s.h];
+    if (s.dir === "gateTop") { const c = gateCenter(s, t); return [s.x, CEIL, s.x + s.w, CEIL, s.x + s.w / 2, c - s.gap]; }
+    if (s.dir === "gateBottom") { const c = gateCenter(s, t); return [s.x, FLOOR, s.x + s.w, FLOOR, s.x + s.w / 2, c + s.gap]; }
     const ext = movingExt(s, t);
     if (s.dir === "launching") return [s.x, FLOOR, s.x + s.w, FLOOR, s.x + s.w / 2, FLOOR - ext];
     return [s.x, CEIL, s.x + s.w, CEIL, s.x + s.w / 2, CEIL + ext]; // "falling"
@@ -834,20 +1109,32 @@
     for (const s of lvl.obstacles) {
       const sx = s.x - camX;
       if (sx + s.w < -20 || sx > W + 20) continue;
-      const moving = s.dir === "launching" || s.dir === "falling";
+      const gate = s.dir === "gateTop" || s.dir === "gateBottom";
+      const piston = s.dir === "launching" || s.dir === "falling";
+      const moving = gate || piston;
       const tri = spikeTri(s, t);
       const px = [tri[0] - camX, tri[1], tri[2] - camX, tri[3], tri[4] - camX, tri[5]];
       const apexY = px[5], baseY = px[1];
 
-      // moving spikes get an amber wall "socket" that's always visible (telegraph)
-      if (moving) {
+      // moving spikes get a wall "socket" that's always visible (telegraph):
+      // amber for pistons, violet for gates.
+      if (piston) {
         ctx.fillStyle = "rgba(255,170,70,0.30)";
         if (s.dir === "launching") ctx.fillRect(sx, H - 7, s.w, 7);
+        else ctx.fillRect(sx, 0, s.w, 7);
+      } else if (gate) {
+        ctx.fillStyle = "rgba(176,107,255,0.30)";
+        if (s.dir === "gateBottom") ctx.fillRect(sx, H - 7, s.w, 7);
         else ctx.fillRect(sx, 0, s.w, 7);
       }
 
       const g = ctx.createLinearGradient(0, Math.min(apexY, baseY), 0, Math.max(apexY, baseY));
-      if (moving) {
+      if (gate) {
+        const tip = "#d2a8ff", root = "#3a1f66";
+        // tip is the apex (the edge of the hole); root anchors at ceiling/floor
+        if (s.dir === "gateTop") { g.addColorStop(0, root); g.addColorStop(1, tip); }
+        else { g.addColorStop(0, tip); g.addColorStop(1, root); }
+      } else if (piston) {
         const tip = "#ffc24a", root = "#8a4412";
         if (s.dir === "launching") { g.addColorStop(0, tip); g.addColorStop(1, root); }
         else { g.addColorStop(0, root); g.addColorStop(1, tip); }
@@ -862,8 +1149,8 @@
       ctx.fillStyle = g;
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = moving ? "rgba(255,200,120,0.95)" : "rgba(255,140,160,0.9)";
-      ctx.shadowColor = moving ? "rgba(255,170,70,0.55)" : "rgba(255,84,112,0.6)";
+      ctx.strokeStyle = gate ? "rgba(210,170,255,0.95)" : piston ? "rgba(255,200,120,0.95)" : "rgba(255,140,160,0.9)";
+      ctx.shadowColor = gate ? "rgba(176,107,255,0.55)" : piston ? "rgba(255,170,70,0.55)" : "rgba(255,84,112,0.6)";
       ctx.shadowBlur = 10;
       ctx.stroke();
       ctx.shadowBlur = 0;

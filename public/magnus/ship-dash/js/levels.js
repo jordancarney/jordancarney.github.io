@@ -113,6 +113,40 @@ function segMix(x0, count, gap, w, h, len, period, speed, startDir) {
   return { spikes: sp, end: x0 + (count - 1) * gap + w };
 }
 
+/*
+ * NEW MECHANIC — MOVING GATES (levels 11+).
+ *
+ * A "gate" is a top spike + a bottom spike that slide up and down TOGETHER,
+ * keeping a constant hole of half-height `gap` between their tips. The hole's
+ * center oscillates `center ± amp` every `period` seconds (see gateCenter in
+ * game.js). The ship has to read the moving hole and ride it.
+ *
+ * segGates lays a ROW of gates that all share one phase, so their holes sample
+ * a single sine wave in time — as the ship flies the row, the hole sweeps up
+ * and down and the ship weaves to stay inside it. The phase is set from x0 so
+ * the FIRST gate's hole is centered (easy to enter) right as the ship arrives.
+ *
+ * Beatability note: the hole tracks a sinusoid, so the ship must out-accelerate
+ * amp*(2π/period)². Net thrust is ±1000 px/s², so keep amp*(2π/period)² well
+ * under that (verified by the headless BFS sim, not by hand-playing).
+ */
+function segGates(x0, count, gapX, w, gap, amp, period, speed, opts) {
+  opts = opts || {};
+  const center = opts.center != null ? opts.center : 270;
+  const t0 = (x0 + w / 2 - 120) / speed;             // when the ship reaches gate 0
+  const startPhase = opts.start != null ? opts.start : 0; // 0 -> first hole centered
+  const phase = startPhase - t0 / period;
+  const sp = [];
+  for (let i = 0; i < count; i++) {
+    const x = x0 + i * gapX;
+    sp.push(
+      { x, w, dir: "gateTop",    gap, amp, center, period, phase },
+      { x, w, dir: "gateBottom", gap, amp, center, period, phase }
+    );
+  }
+  return { spikes: sp, end: x0 + (count - 1) * gapX + w };
+}
+
 // Stitch sections together (each: (x0, speed) => {spikes, end}) with gaps.
 function composeLevel(meta, sections) {
   const trans = meta.trans || 230;
@@ -358,6 +392,120 @@ const LEVELS = [
       (x, sp) => segMix(x, 5, 328, 90, 392, 372, 1.5, sp, "bottom"),
       (x) => segZigzag(x, 5, 322, 128, 398, "top"),
       (x) => segChaos(x, 700, 60, 3510),
+    ]
+  ),
+
+  // ----------------------------------------------------------------------
+  // LEVELS 11–20 — the MOVING GATE journeys. A new mechanic (purple gates
+  // whose hole slides up and down) is introduced and then woven together
+  // with every earlier mechanic, ramping to the hardest levels in the game.
+  // ----------------------------------------------------------------------
+
+  // L11 — gentle introduction to gates: big holes, slow, with a corridor warmup.
+  composeLevel(
+    { name: "Gateway", subtitle: "Ride the moving hole", speed: 196,
+      hint: "PURPLE gates slide up and down — fly through the moving hole!" },
+    [
+      (x) => segCorridor(x, 460, 170),
+      (x, sp) => segGates(x, 6, 300, 72, 86, 64, 3.4, sp),
+      (x, sp) => segGates(x, 6, 285, 72, 82, 82, 3.2, sp),
+    ]
+  ),
+  // L12 — gates + the big climb-and-dive zig-zag.
+  composeLevel(
+    { name: "Slipstream", subtitle: "Gates meet the zig-zag", speed: 200,
+      hint: "Surf the gates, then climb and dive the big spikes." },
+    [
+      (x, sp) => segGates(x, 6, 290, 72, 80, 80, 3.2, sp),
+      (x) => segZigzag(x, 4, 330, 128, 360, "bottom"),
+      (x, sp) => segGates(x, 6, 280, 72, 78, 92, 3.0, sp),
+    ]
+  ),
+  // L13 — gates woven with jagged chaos.
+  composeLevel(
+    { name: "Tide", subtitle: "Gates in the chaos", speed: 203,
+      hint: "Read the chaos, then surf the rising and falling gate." },
+    [
+      (x) => segChaos(x, 560, 74, 4101),
+      (x, sp) => segGates(x, 7, 280, 70, 78, 96, 3.0, sp),
+      (x) => segCorridor(x, 460, 184),
+    ]
+  ),
+  // L14 — TWO moving mechanics at once: amber pistons and purple gates.
+  composeLevel(
+    { name: "Twin Engines", subtitle: "Pistons and gates", speed: 205,
+      hint: "Amber pistons AND purple gates now — both move. Stay calm and read ahead." },
+    [
+      (x, sp) => segPistons(x, 4, 340, 90, 330, 2.2, sp, "launching"),
+      (x, sp) => segGates(x, 7, 275, 70, 76, 100, 2.9, sp),
+      (x, sp) => segGates(x, 6, 275, 70, 76, 104, 2.85, sp),
+    ]
+  ),
+  // L15 — tighter holes, bigger swings, plus a razor zig-zag.
+  composeLevel(
+    { name: "Undertow", subtitle: "Tighter, faster gates", speed: 208,
+      hint: "Tighter holes, bigger swings. Anticipate the hole — don't chase it." },
+    [
+      (x, sp) => segGates(x, 8, 270, 68, 74, 108, 2.8, sp),
+      (x) => segZigzag(x, 5, 320, 128, 380, "top"),
+      (x, sp) => segGates(x, 7, 265, 68, 72, 112, 2.75, sp),
+    ]
+  ),
+  // L16 — the whole toolbox in one run.
+  composeLevel(
+    { name: "Everything Wave", subtitle: "The whole toolbox", speed: 210,
+      hint: "Corridor, gates, mixed spikes, chaos — all of it, in one breath." },
+    [
+      (x) => segCorridor(x, 460, 196),
+      (x, sp) => segGates(x, 7, 265, 66, 72, 112, 2.75, sp),
+      (x, sp) => segMix(x, 5, 330, 92, 372, 360, 1.7, sp, "bottom"),
+      (x) => segChaos(x, 560, 66, 4106),
+    ]
+  ),
+  // L17 — fast gate waves squeezed between walls.
+  composeLevel(
+    { name: "Crosscurrent", subtitle: "Fast gates, tight walls", speed: 212,
+      hint: "Fast gates between the walls. Find the rhythm and ride it." },
+    [
+      (x) => segChaos(x, 600, 64, 4107),
+      (x, sp) => segGates(x, 8, 260, 66, 70, 116, 2.65, sp),
+      (x, sp) => segMix(x, 6, 322, 92, 380, 366, 1.6, sp, "top"),
+      (x, sp) => segGates(x, 6, 258, 66, 70, 116, 2.6, sp),
+    ]
+  ),
+  // L18 — no safe stretch: gates, zig-zag, pistons, gates.
+  composeLevel(
+    { name: "Riptide", subtitle: "No safe stretch", speed: 214,
+      hint: "Gates, razor zig-zag, pistons — then gates again. Never freeze." },
+    [
+      (x, sp) => segGates(x, 8, 256, 64, 68, 120, 2.6, sp),
+      (x) => segZigzag(x, 5, 318, 128, 390, "bottom"),
+      (x, sp) => segPistons(x, 5, 320, 88, 348, 1.75, sp, "falling"),
+      (x, sp) => segGates(x, 7, 254, 64, 68, 122, 2.55, sp),
+    ]
+  ),
+  // L19 — everything, at speed.
+  composeLevel(
+    { name: "Maelstrom", subtitle: "Everything, at speed", speed: 216,
+      hint: "Everything at speed. Trust your reads and don't freeze." },
+    [
+      (x) => segChaos(x, 640, 62, 4109),
+      (x, sp) => segGates(x, 9, 252, 64, 66, 122, 2.55, sp),
+      (x, sp) => segMix(x, 6, 320, 92, 392, 372, 1.5, sp, "bottom"),
+      (x, sp) => segGates(x, 7, 250, 64, 66, 124, 2.5, sp),
+    ]
+  ),
+  // L20 — the final gauntlet: every mechanic, all at once.
+  composeLevel(
+    { name: "Event Horizon", subtitle: "The final gauntlet", speed: 220,
+      hint: "Every mechanic, all at once. This is the end of the line — good luck, pilot!" },
+    [
+      (x) => segCorridor(x, 440, 206),
+      (x, sp) => segGates(x, 9, 248, 62, 64, 124, 2.5, sp),
+      (x) => segZigzag(x, 5, 314, 128, 400, "top"),
+      (x, sp) => segMix(x, 6, 316, 90, 396, 376, 1.45, sp, "bottom"),
+      (x, sp) => segGates(x, 8, 246, 62, 64, 126, 2.45, sp),
+      (x) => segChaos(x, 640, 60, 4120),
     ]
   ),
 ];
