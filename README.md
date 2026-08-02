@@ -2,19 +2,14 @@
 
 ### ▶ [Visit it](https://jordancarney.github.io/)
 
-A single-page personal site: animated hyperspace background, a terminal-typed intro,
-a short bio, and two ways to reach me. Built with Vite, React, TypeScript, Tailwind CSS
-and shadcn/ui.
+My simple one-page personal site: a terminal-typed intro over an animated background, a
+short bio, and a couple of ways to reach me. It also serves privacy policies for my apps as
+standalone static pages under `public/`, which need no JS and no build output.
 
-## What's here
+## Built with
 
-- **Landing page** — the whole thing is [src/App.tsx](src/App.tsx), and every word of
-  copy lives in [src/content/site.ts](src/content/site.ts), so edits don't mean touching
-  components.
-- **Privacy policies** for [Liberate](https://jordancarney.github.io/liberate-privacy-policy/)
-  and [The Orb](https://jordancarney.github.io/the-orb-privacy-policy/) — self-contained
-  static pages in `public/`, no JS and no build output, so those URLs stand on their own.
-- **404 page** that redirects back to the root.
+Vite, React, TypeScript, Tailwind CSS and shadcn/ui. All the copy lives in
+[src/content/site.ts](src/content/site.ts), so wording changes don't mean touching components.
 
 ## Run locally
 
@@ -44,15 +39,3 @@ A custom domain is configured in **Settings → Pages**, and GitHub redirects th
 URLs to it — including the project sites at `/ship-dash/` and `/platypus-adventures/`. So
 these READMEs link to `github.io` on purpose: it lands in the same place either way, and it
 doesn't go stale if the custom domain ever changes.
-
-## Project layout
-
-```
-index.html            Vite entry
-src/main.tsx          React root + a small pathname router
-src/App.tsx           The landing page
-src/content/site.ts   All the copy — name, bio, email, links
-src/components/       Avatar, Container, HyperspaceBackground, TerminalIntro + shadcn/ui
-src/index.css         Tailwind layers + the hyperspace and CTA animations
-public/               Copied to the site root as-is — avatar, favicon, 404, privacy policies
-```
