@@ -43,7 +43,8 @@ export function HyperspaceBackground() {
     let centerX = 0
     let centerY = 0
     let focalLength = 0
-    let reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let reducedMotion = mediaQuery.matches
 
     const stars: Star[] = []
 
@@ -167,7 +168,6 @@ export function HyperspaceBackground() {
       rafId = window.requestAnimationFrame(animate)
     }
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     const onMotionChange = (event: MediaQueryListEvent) => {
       reducedMotion = event.matches
       window.cancelAnimationFrame(rafId)
@@ -198,13 +198,9 @@ export function HyperspaceBackground() {
 
     resize()
     window.addEventListener('resize', onResize)
-    window.addEventListener('visibilitychange', onVisibilityChange)
+    document.addEventListener('visibilitychange', onVisibilityChange)
     window.addEventListener('pageshow', onPageShow)
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', onMotionChange)
-    } else {
-      mediaQuery.addListener(onMotionChange)
-    }
+    mediaQuery.addEventListener('change', onMotionChange)
 
     if (reducedMotion) {
       redrawReducedMotionFrame()
@@ -217,13 +213,9 @@ export function HyperspaceBackground() {
     return () => {
       window.cancelAnimationFrame(rafId)
       window.removeEventListener('resize', onResize)
-      window.removeEventListener('visibilitychange', onVisibilityChange)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('pageshow', onPageShow)
-      if (typeof mediaQuery.removeEventListener === 'function') {
-        mediaQuery.removeEventListener('change', onMotionChange)
-      } else {
-        mediaQuery.removeListener(onMotionChange)
-      }
+      mediaQuery.removeEventListener('change', onMotionChange)
     }
   }, [])
 

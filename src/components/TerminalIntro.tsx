@@ -47,17 +47,14 @@ export function TerminalIntro({ text, typingSpeedMs = 80 }: TerminalIntroProps) 
   }, [text, typingSpeedMs])
 
   return (
-    <p
-      className="font-mono text-3xl font-semibold tracking-tight text-emerald-400 sm:text-4xl"
-      aria-live="polite"
-    >
-      {displayedText}
-      {!isComplete ? (
-        <span
-          className="ml-1 inline-block h-8 w-2 animate-pulse bg-emerald-400 align-middle sm:h-10"
-          aria-hidden="true"
-        />
-      ) : null}
+    <p className="font-mono text-3xl font-semibold tracking-tight text-emerald-400 sm:text-4xl">
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">
+        {displayedText}
+        {!isComplete ? (
+          <span className="ml-1 inline-block h-8 w-2 animate-pulse bg-emerald-400 align-middle sm:h-10" />
+        ) : null}
+      </span>
     </p>
   )
 }

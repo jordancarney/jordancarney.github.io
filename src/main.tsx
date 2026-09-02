@@ -9,9 +9,6 @@ if (!rootElement) {
   throw new Error('Root element not found')
 }
 
-document.documentElement.classList.add('dark')
-document.documentElement.style.colorScheme = 'dark'
-
 createRoot(rootElement).render(
   <StrictMode>
     <App />

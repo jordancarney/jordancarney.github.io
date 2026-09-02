@@ -35,13 +35,13 @@ function App() {
         <div className="mx-auto grid w-full max-w-md grid-cols-1 gap-3 sm:grid-cols-2">
           <Button asChild size="lg" className={`${ctaButtonClass} cta-hyperspace--light`}>
             <a href={emailHref}>
-              <Mail className="h-5 w-5" aria-hidden="true" />
+              <Mail aria-hidden="true" />
               Email
             </a>
           </Button>
           <Button asChild variant="secondary" size="lg" className={ctaButtonClass}>
             <a href={siteConfig.linkedinUrl} {...externalLinkProps}>
-              <Linkedin className="h-5 w-5" aria-hidden="true" />
+              <Linkedin aria-hidden="true" />
               LinkedIn
             </a>
           </Button>
