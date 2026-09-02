@@ -2,9 +2,10 @@
 
 ### ▶ [Visit it](https://jordancarney.github.io/)
 
-My simple one-page personal site: a terminal-typed intro over an animated background, a
-short bio, and a couple of ways to reach me. It also serves privacy policies for my apps as
-standalone static pages under `public/`, which need no JS and no build output.
+My simple one-page personal site: a terminal-typed intro over an animated background, an
+avatar that glitches when you hover it, a short bio, and a couple of ways to reach me. It
+also serves privacy policies for my apps as standalone static pages under `public/`, which
+need no JS and no build output.
 
 ## Built with
 

@@ -148,3 +148,214 @@
     animation: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Avatar glitch: hovering the avatar (or tapping it on touch screens) runs a
+   looping RGB-split glitch. Markup is in src/components/Avatar.tsx; the wrapper
+   carries data-active while it plays.
+--------------------------------------------------------------------------- */
+
+.avatar-glitch {
+  isolation: isolate;
+  transition: box-shadow 300ms ease;
+}
+
+.avatar-glitch[data-active] {
+  box-shadow:
+    0 0 0 1px rgba(94, 234, 212, 0.25),
+    0 0 42px rgba(56, 189, 248, 0.32),
+    0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Two tinted copies of the photo, sliced and shifted while active. They sit above the
+   <img>, whose animated transform gives it a stacking context of its own. */
+.avatar-glitch::before,
+.avatar-glitch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--avatar-src) center / cover no-repeat;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.avatar-glitch::before {
+  filter: sepia(1) saturate(4) hue-rotate(-70deg) contrast(1.15);
+}
+
+.avatar-glitch::after {
+  filter: sepia(1) saturate(6) hue-rotate(150deg);
+  mix-blend-mode: screen;
+}
+
+.avatar-glitch__scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .avatar-glitch[data-active]::before {
+    opacity: 0.9;
+    animation: avatar-glitch-a 1.1s steps(1, end) infinite;
+  }
+
+  .avatar-glitch[data-active]::after {
+    opacity: 0.9;
+    animation: avatar-glitch-b 0.9s steps(1, end) infinite;
+  }
+
+  .avatar-glitch[data-active] img {
+    animation: avatar-glitch-base 1.3s steps(1, end) infinite;
+  }
+
+  .avatar-glitch[data-active] .avatar-glitch__scanlines {
+    animation: avatar-glitch-flicker 0.4s steps(2, end) infinite;
+  }
+}
+
+@keyframes avatar-glitch-a {
+  0% {
+    clip-path: inset(8% 0 78% 0);
+    transform: translate(-5px, 0);
+  }
+  8% {
+    clip-path: inset(62% 0 14% 0);
+    transform: translate(4px, 0);
+  }
+  16% {
+    clip-path: inset(30% 0 55% 0);
+    transform: translate(-3px, 1px);
+  }
+  24% {
+    clip-path: inset(85% 0 4% 0);
+    transform: translate(6px, 0);
+  }
+  32% {
+    clip-path: inset(45% 0 45% 0);
+    transform: translate(-2px, 0);
+  }
+  40% {
+    clip-path: inset(18% 0 70% 0);
+    transform: translate(3px, -1px);
+  }
+  48% {
+    clip-path: inset(70% 0 10% 0);
+    transform: translate(-6px, 0);
+  }
+  56% {
+    clip-path: inset(2% 0 92% 0);
+    transform: translate(3px, 0);
+  }
+  64% {
+    clip-path: inset(52% 0 30% 0);
+    transform: translate(-4px, 0);
+  }
+  72% {
+    clip-path: inset(38% 0 48% 0);
+    transform: translate(2px, 1px);
+  }
+  80% {
+    clip-path: inset(90% 0 2% 0);
+    transform: translate(-5px, 0);
+  }
+  88%,
+  100% {
+    clip-path: inset(24% 0 60% 0);
+    transform: translate(4px, 0);
+  }
+}
+
+@keyframes avatar-glitch-b {
+  0% {
+    clip-path: inset(74% 0 12% 0);
+    transform: translate(5px, 0);
+  }
+  10% {
+    clip-path: inset(20% 0 66% 0);
+    transform: translate(-4px, 0);
+  }
+  20% {
+    clip-path: inset(56% 0 36% 0);
+    transform: translate(3px, -1px);
+  }
+  30% {
+    clip-path: inset(4% 0 88% 0);
+    transform: translate(-6px, 0);
+  }
+  40% {
+    clip-path: inset(66% 0 20% 0);
+    transform: translate(2px, 0);
+  }
+  50% {
+    clip-path: inset(34% 0 52% 0);
+    transform: translate(-5px, 1px);
+  }
+  60% {
+    clip-path: inset(12% 0 80% 0);
+    transform: translate(6px, 0);
+  }
+  70% {
+    clip-path: inset(80% 0 8% 0);
+    transform: translate(-3px, 0);
+  }
+  80% {
+    clip-path: inset(42% 0 44% 0);
+    transform: translate(4px, 0);
+  }
+  90%,
+  100% {
+    clip-path: inset(58% 0 26% 0);
+    transform: translate(-2px, 0);
+  }
+}
+
+@keyframes avatar-glitch-base {
+  0%,
+  100% {
+    transform: none;
+    filter: none;
+  }
+  6% {
+    transform: translate(-3px, 0) skewX(-3deg);
+  }
+  9% {
+    transform: none;
+  }
+  34% {
+    transform: translate(2px, 0);
+    filter: contrast(1.3) brightness(1.15);
+  }
+  37% {
+    transform: none;
+    filter: none;
+  }
+  58% {
+    transform: translate(-2px, 1px);
+  }
+  61% {
+    transform: none;
+  }
+  82% {
+    transform: translate(3px, 0) skewX(2deg);
+    filter: invert(0.08);
+  }
+  85% {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes avatar-glitch-flicker {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
