@@ -31,7 +31,7 @@ export function Avatar({ src, alt, className }: AvatarProps) {
   return (
     <div
       className={cn(
-        'avatar-glitch relative h-36 w-36 overflow-hidden rounded-full border border-zinc-700/80 bg-zinc-900 shadow-xl shadow-black/30 sm:h-40 sm:w-40',
+        'avatar-glitch relative h-36 w-36 rounded-full border border-zinc-700/80 bg-zinc-900 shadow-xl shadow-black/30 sm:h-40 sm:w-40',
         className
       )}
       style={{ '--avatar-src': `url("${src}")` } as CSSProperties}
@@ -39,8 +39,11 @@ export function Avatar({ src, alt, className }: AvatarProps) {
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
     >
-      <img src={src} alt={alt} className="h-full w-full object-cover" />
-      <span className="avatar-glitch__scanlines" aria-hidden="true" />
+      {/* The frame clips with clip-path: Safari drops a rounded overflow clip once the layers animate. */}
+      <div className="avatar-glitch__frame absolute inset-0 overflow-hidden rounded-full">
+        <img src={src} alt={alt} className="h-full w-full object-cover" />
+        <span className="avatar-glitch__scanlines" aria-hidden="true" />
+      </div>
     </div>
   )
 }
